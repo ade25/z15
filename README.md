@@ -11,12 +11,8 @@ Just boostrap the buildout and run
 Note:
 -----
 
-In order to make this reusable it could also be an option to add a dedicated 
-buildout profile **servername.cfg** to be explicit and potentially be able to
-run this simple webserver setup on several machines (via different profiles).
-
-Another option would be to branch the buildout for each dedicated server and
-keep the master branch updated.
+In order to make this work locally you need to take a view extra steps. Please
+refer to the [setup local directory documentation](docs/setup.md)
 
 
 Provided services:
@@ -77,7 +73,7 @@ Note: if you add a new site you can just copy the last line and update
 the variable number
 
 
-Add new virtual host to "${buildout:directory}/vhosts/"
+Add new virtual host to "${buildout:directory}/etc/templates/"
 -----------------------------------------------------------
 
 Copy the existing *example.tld* file and replace the *zopeX* variable with the 
@@ -140,6 +136,44 @@ congfig file by adding a single line at the bottom of the file
 ```
 include ${locations:config}/${sites:zopeX}.conf;
 ````
+
+Update /buildout.d/templates/serverdetails.json
+-----------------------------------------------
+
+Add the new vhost to the server status info file we will use in "wigo.sqapp"
+to display host details.
+
+```
+...
+{
+    "title": "${sites:zopeX}",
+    "type": "plone",
+    "port": "${ports:zopeX}",
+    "url": "${hosts:zopeX}"
+}
+```
+
+*Note:* you can simply copy the last server block in the template file, but
+make sure that you separate serverblocks via `,`. The correct syntax
+(simplified) would be:
+
+``` json
+{
+  "server": "zope10",
+  "servername": "${hosts:public}",
+  "sites": [
+    {
+      zope1 block
+    },
+    {
+      zope2 block
+    },
+    {
+      zope3 block
+    }
+  ]
+}
+```
 
 
 Deploy the new configuration
