@@ -19,13 +19,6 @@ env.code_root = '/opt/webserver/buildout.webserver'
 env.host_root = '/opt/sites'
 
 env.hosts = ['${fabric:host}']
-env.hosted_sites = [
-    '${sites:zope1}',
-    '${sites:zope2}',
-    '${sites:zope3}',
-    '${sites:zope4}',
-    '${sites:zope5}',
-]
 
 env.hosted_sites_locations = [
     '/opt/sites/${sites:zope1}/buildout.${sites:zope1}',
