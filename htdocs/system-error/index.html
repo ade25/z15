@@ -34,7 +34,54 @@
         p {
             line-height: 1.2;
         }
-
+        a {
+            color: #99cc00;
+            text-decoration: none;
+        }
+        .btn {
+          display: inline-block;
+          padding: 6px 12px;
+          margin-top: 10px;
+          margin-bottom: 0;
+          font-size: 14px;
+          font-weight: normal;
+          line-height: 1.42857143;
+          text-align: center;
+          white-space: nowrap;
+          vertical-align: middle;
+          -ms-touch-action: manipulation;
+              touch-action: manipulation;
+          cursor: pointer;
+          -webkit-user-select: none;
+             -moz-user-select: none;
+              -ms-user-select: none;
+                  user-select: none;
+          background-image: none;
+          border: 1px solid #99cc00;
+        }
+        .btn:focus,
+        .btn:active:focus,
+        .btn.active:focus,
+        .btn.focus,
+        .btn:active.focus,
+        .btn.active.focus {
+          outline: thin dotted;
+          outline: 5px auto -webkit-focus-ring-color;
+          outline-offset: -2px;
+        }
+        .btn:hover,
+        .btn:focus,
+        .btn.focus {
+          color: #333;
+          text-decoration: none;
+        }
+        .btn:active,
+        .btn.active {
+          background-image: none;
+          outline: 0;
+          -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
+                  box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
+        }
         .img-responsive {
             display: block;
             height: auto;
@@ -60,8 +107,9 @@
 </head>
 <body>
      <img class="img-responsive" src="../assets/img/logo.png" alt="Ade25" />
-    <h1>Page Not Found</h1>
-    <p>Sorry, but the page you were trying to view does not exist.</p>
+    <h1>Page Not Available</h1>
+    <p>Sorry, but the page you were trying to view is currently not available.</p>
+    <p><a class="btn" href="/">Try again</a></p>
 </body>
 </html>
 <!-- IE needs 512+ bytes: http://blogs.msdn.com/b/ieinternals/archive/2010/08/19/http-error-pages-in-internet-explorer.aspx -->
