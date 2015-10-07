@@ -1,3 +1,4 @@
+import getpass
 from fabric.api import cd
 from fabric.api import env
 from fabric.api import local
@@ -7,6 +8,9 @@ from fabric.api import task
 from ade25.fabfiles import project
 from ade25.fabfiles.server import controls
 from ade25.fabfiles import hotfix as hf
+
+from slacker import Slacker
+slack = Slacker('xoxp-2440800772-2440800774-2520374751-468e84')
 
 env.use_ssh_config = True
 env.forward_agent = True
@@ -20,26 +24,10 @@ env.host_root = '/opt/sites'
 
 env.hosts = ['z15']
 env.hosted_sites = [
-    'jsf',
-    'hacon',
-    'aac',
-    'jk',
-    'fv',
 ]
 
 env.hosted_sites_locations = [
-    '/opt/sites/jsf/buildout.jsf',
-    '/opt/sites/hacon/buildout.hacon',
-    '/opt/sites/aac/buildout.aac',
-    '/opt/sites/jk/buildout.jk',
-    '/opt/sites/fv/buildout.fv',
 ]
-
-
-@task
-def push():
-    """ Push committed local changes to git """
-    local('git push')
 
 
 @task
@@ -68,27 +56,52 @@ def restart_haproxy():
 
 
 @task
-def supervisorctl(*cmd):
+def ctl(*cmd):
     """Runs an arbitrary supervisorctl command."""
     with cd(env.webserver):
         run('nice bin/supervisorctl ' + ' '.join(cmd))
 
 
 @task
-def deploy():
-    """ Deploy current master to production server """
-    push()
-    controls.update()
-    controls.build()
+def prepare_deploy():
+    """ Push committed local changes to git """
+    local('git push')
 
 
 @task
-def deploy_site():
-    """ Deploy a new site to production """
-    push()
-    controls.update()
-    controls.build()
-    controls.reload_supervisor()
+def deploy(actor=None):
+    """ Deploy current master to production server """
+    opts = dict(
+        actor=actor or env.get('actor') or getpass.getuser(),
+    )
+    project.site.update()
+    project.site.build()
+    with cd(env.webserver):
+        run('bin/supervisorctl reread')
+        run('bin/supervisorctl update')
+    msg = '[z3] z3.ade25.de server configuration deployed by %(actor)s' % opts
+    user = 'fabric'
+    icon = ':shipit:'
+    slack.chat.post_message('#general', msg, username=user, icon_emoji=icon)
+
+
+@task
+def update(sitename=None, actor=None):
+    """ Deploy changes to a hosted site """
+    opts = dict(
+        sitename=sitename,
+        actor=actor or env.get('actor') or getpass.getuser(),
+    )
+    path = '{0}/{1}/buildout.{2}'.format(env.host_root, sitename, sitename)
+    with cd(path):
+        run('nice git pull')
+        run('nice bin/buildout -Nc deployment.cfg')
+    with cd(env.webserver):
+        run('nice bin/supervisorctl restart instance-%(sitename)s' % opts)
+    msg = '[s1] %(sitename)s deployed by %(actor)s' % opts
+    user = 'fabric'
+    icon = ':shipit:'
+    slack.chat.post_message('#general', msg, username=user, icon_emoji=icon)
 
 
 @task

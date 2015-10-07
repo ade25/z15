@@ -24,3 +24,5 @@ var
 .codeintel
 src/ade25.fabfiles
 .DS_Store
+include
+lib
